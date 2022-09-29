@@ -1,7 +1,10 @@
 import axios from 'axios';
 import React from 'react';
-import { signup } from '../api/apiCalls';
+import { signup, changeLanguage } from '../api/apiCalls';
 import Input  from '../components/Input';
+import {withTranslation} from 'react-i18next';
+ 
+
 class UserSignupPage extends React.Component{
 
     state = {
@@ -14,15 +17,16 @@ class UserSignupPage extends React.Component{
     };
 
     onChange = event => {
+       const { t } = this.props; 
        const { name, value } = event.target;
        console.log(event.target)
        const errors = {...this.state.errors}
        errors[name] = undefined;
        if ( name === 'password' || name === 'passwordRepeat') {
           if( name === 'password' && value !== this.state.passwordRepeat  ) {
-            errors.passwordRepeat = 'Password mismatch';
+            errors.passwordRepeat = t('Password mismatch');
           } else if (name === 'passwordRepeat' && value !== this.state.password) {
-            errors.passwordRepeat = 'Password mismatch';
+            errors.passwordRepeat = t('Password mismatch');
 
           }else {
             errors.passwordRepeat = undefined;
@@ -63,36 +67,38 @@ class UserSignupPage extends React.Component{
         }
 
         this.setState({pendingApiCall: false});
+        
+    };
 
-        //signup(body)
-          //.then((response) => {
-           // this.setState({ pendingApiCall: false});  
-         // }).catch(error => {}
-          // this.setState({ pendingApiCall: false});
-         //});
-        
-        
+    onChangeLanguage = language => {
+      const { i18n } = this.props;
+      i18n.changeLanguage(language);
+      changeLanguage(language);
+
     };
     
     render() {
         const { pendingApiCall, errors } = this.state; 
         const { username , displayName, password, passwordRepeat} = errors;
-        console.log(this.state)
+        const { t } = this.props;
         this.state.password= this.state.passwordRepeat;   
-       
-
         return(
             <div className = "container"> 
               <form>
-                <h1 className="text-center">Sign Up</h1> 
-                <Input name = "username" label="Username" error={username} onChange={this.onChange} />
-                <Input name = "displayName" label="Display Name" error={displayName} onChange={this.onChange} />
-                <Input name = "passsword" label="Password" error={password} onChange={this.onChange} type= "password" />
-                <Input name = "passwordRepeat" label="Password Repeat" error={passwordRepeat} onChange={this.onChange} type= "password" />
+                <h1 className="text-center">{t('Sign Up')}</h1> 
+                <Input name = "username" label={t("Username")} error={username} onChange={this.onChange} />
+                <Input name = "displayName" label={t("Display Name")} error={displayName} onChange={this.onChange} />
+                <Input name = "passsword" label={t("Password")} error={password} onChange={this.onChange} type= "password" />
+                <Input name = "passwordRepeat" label={t("Password Repeat")} error={passwordRepeat} onChange={this.onChange} type= "password" />
                <div className="text-center">
                 <button className="btn btn-primary" onClick= {this.onClickSignup} disabled={pendingApiCall } >
-                    {pendingApiCall && <span className="spinner-border spinner-border-sm" ></span> } Sign Up
+                    {pendingApiCall && <span className="spinner-border spinner-border-sm" ></span> } {t('Sign Up')}
                 </button>
+               </div>
+               <div>
+                <img src="https://wwww.countryflags.io/tr/flat/24.png" alt="Turkish Flag" onClick={() => this.onChangeLanguage('tr')} style={{cursor: 'pointer'}}></img>
+                <img src="https://wwww.countryflags.io/us/flat/24.png" alt="USA Flag" onClick={() => this.onChangeLanguage('en')} style={{cursor: 'pointer'}}></img>
+                
                </div>
               </form>
             </div> 
@@ -100,4 +106,6 @@ class UserSignupPage extends React.Component{
     }
 }
 
-export default UserSignupPage; 
+const UserSignupPageWithTranslation = withTranslation()(UserSignupPage);
+
+export default withTranslation()(UserSignupPage); 
