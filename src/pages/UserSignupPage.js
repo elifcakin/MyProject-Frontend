@@ -70,12 +70,7 @@ class UserSignupPage extends React.Component{
         
     };
 
-    onChangeLanguage = language => {
-      const { i18n } = this.props;
-      i18n.changeLanguage(language);
-      changeLanguage(language);
-
-    };
+;
     
     render() {
         const { pendingApiCall, errors } = this.state; 
@@ -92,14 +87,10 @@ class UserSignupPage extends React.Component{
                 <Input name = "passwordRepeat" label={t("Password Repeat")} error={passwordRepeat} onChange={this.onChange} type= "password" />
                <div className="text-center">
                 <button className="btn btn-primary" onClick= {this.onClickSignup} disabled={pendingApiCall } >
-                    {pendingApiCall && <span className="spinner-border spinner-border-sm" ></span> } {t('Sign Up')}
+                    {pendingApiCall && <span className="spinner-border spinner-border-sm" ></span> } {t('Sign Up') }
                 </button>
                </div>
-               <div>
-                <img src="https://wwww.countryflags.io/tr/flat/24.png" alt="Turkish Flag" onClick={() => this.onChangeLanguage('tr')} style={{cursor: 'pointer'}}></img>
-                <img src="https://wwww.countryflags.io/us/flat/24.png" alt="USA Flag" onClick={() => this.onChangeLanguage('en')} style={{cursor: 'pointer'}}></img>
-                
-               </div>
+               
               </form>
             </div> 
         );

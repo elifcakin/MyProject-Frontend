@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import Input from '../components/Input';
+import {withTranslation} from 'react-i18next';
+import { login } from '../api/apiCalls';
+
 
 class LoginPage extends Component {
 
@@ -15,20 +18,29 @@ class LoginPage extends Component {
         })
     }
 
-
-
+    onClickLogin = event => {
+        event.preventDefault();
+        const { username, password } = this.state;
+        const creds = {
+            username,
+            password
+        }
+        login(creds)
+    }
+ 
 
 
     render() {
+        const { t } = this.props;
         return (
             <div>
                <div className = "container"> 
               <form> 
-                <h1 className="text-center">Login</h1> 
-                <Input name = "username" label="Username" onChange={this.onChange}/>
-                <Input name = "password" label="Password" onChange={this.onChange} type= "password" />
+                <h1 className="text-center">{t('Login')}</h1> 
+                <Input name = "Username"  label={t("Username")} onChange={this.onChange}/>
+                <Input name = "Password"  label={t("Password")} onChange={this.onChange} type= "password" />
                 <div className="text-center">
-                    <button className="btn btn-primary" >Login </button>
+                    <button className="btn btn-primary" onClick={this.onClickLogin} >{t('Login')} </button>
                 </div>
                
               
@@ -40,4 +52,4 @@ class LoginPage extends Component {
     }
 }
 
-export default LoginPage;
+export default withTranslation()(LoginPage);
