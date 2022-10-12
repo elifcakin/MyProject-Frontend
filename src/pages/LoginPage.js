@@ -8,45 +8,73 @@ class LoginPage extends Component {
 
     state = {
         username: null,
-        password: null
+        password: null,
+        error: null
+
     };
 
-    onChange = event => {
-        const {name, value} = event.target;
+    onChangePassword = event => {
+        const {name, value} = event.target.value;
         this.setState({
-            [name]: value
-        })
-    }
+            [name]: value,
+            error: null
+        });
+        this.state.password=event.target.value;
 
-    onClickLogin = event => {
+
+    };
+
+    onChangeName= event => {
+        const {name, value} = event.target.value;
+        this.setState({
+            [name]: value,
+            error: null
+        });
+        this.state.username=event.target.value;
+    };
+
+    onClickLogin = async event => {
         event.preventDefault();
         const { username, password } = this.state;
         const creds = {
             username,
             password
+        };
+        this.setState({
+            error: null
+        })
+        try {
+
+           await login(creds) 
+        } catch (apiError) {
+            this.setState({
+                error: apiError.response.data.message
+            })
         }
-        login(creds)
-    }
+
+    };
  
-
-
     render() {
         const { t } = this.props;
+        const { username, password, error  } = this.state;
+        const buttonEnabled = username && password;
+        
+  
+
         return (
-            <div>
+            
                <div className = "container"> 
               <form> 
                 <h1 className="text-center">{t('Login')}</h1> 
-                <Input name = "Username"  label={t("Username")} onChange={this.onChange}/>
-                <Input name = "Password"  label={t("Password")} onChange={this.onChange} type= "password" />
+                <Input name = "Username"  label={t("Username")} onChange={this.onChangeName}/>
+                <Input name = "Password"  label={t("Password")} onChange={this.onChangePassword} type= "password" />
+                {error && <div className="alert alert-danger" >{error}</div>}
                 <div className="text-center">
-                    <button className="btn btn-primary" onClick={this.onClickLogin} >{t('Login')} </button>
+                    <button className="btn btn-primary" onClick={this.onClickLogin} disabled={!buttonEnabled} >
+                         {t('Login')} 
+                    </button>
                 </div>
-               
-              
               </form>
-            </div> 
-         
             </div>
         );
     }
