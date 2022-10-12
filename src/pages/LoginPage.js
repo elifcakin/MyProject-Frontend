@@ -2,16 +2,23 @@ import React, { Component } from 'react';
 import Input from '../components/Input';
 import {withTranslation} from 'react-i18next';
 import { login } from '../api/apiCalls';
-
+import axios from 'axios';
 
 class LoginPage extends Component {
 
     state = {
         username: null,
         password: null,
-        error: null
-
+        error: null,
+        pendingApiCall: false
     };
+
+    componentDidMount() {
+        axios.interceptors.request.use(function (request) {
+
+        })
+    }
+
 
     onChangePassword = event => {
         const {name, value} = event.target.value;
@@ -20,7 +27,6 @@ class LoginPage extends Component {
             error: null
         });
         this.state.password=event.target.value;
-
 
     };
 
@@ -58,9 +64,7 @@ class LoginPage extends Component {
         const { t } = this.props;
         const { username, password, error  } = this.state;
         const buttonEnabled = username && password;
-        
-  
-
+    
         return (
             
                <div className = "container"> 
