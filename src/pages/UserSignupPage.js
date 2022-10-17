@@ -79,10 +79,10 @@ class UserSignupPage extends React.Component{
         const { t, pendingApiCall } = this.props;
         this.state.password= this.state.passwordRepeat;   
         return(
-            <div className = "container"> 
+            <div className = "container "> 
               <form>
-                <h1 className="text-center">{t('Sign Up')}</h1> 
-                <Input name = "username" label={t("Username")} error={username} onChange={this.onChange} />
+                <h1 className="text-center " >{t('Sign Up')}</h1> 
+                <Input name = "username " label={t("Username")} error={username} onChange={this.onChange} />
                 <Input name = "displayName" label={t("Display Name")} error={displayName} onChange={this.onChange} />
                 <Input name = "passsword" label={t("Password")} error={password} onChange={this.onChange} type= "password" />
                 <Input name = "passwordRepeat" label={t("Password Repeat")} error={passwordRepeat} onChange={this.onChange} type= "password" />
@@ -91,7 +91,7 @@ class UserSignupPage extends React.Component{
                   onClick= {this.onClickSignup} 
                   disabled={pendingApiCall || passwordRepeat !== undefined} 
                   pendingApiCall={pendingApiCall} 
-                  text = {t('Sign Up')}
+                  text = {t('Sign Up ')}
                  />  
                </div>
               </form>
@@ -100,7 +100,8 @@ class UserSignupPage extends React.Component{
     }
 }
 
-const UserSignupPageWithTranslation = withTranslation()(UserSignupPage);
+const UserSignupPageWithApiProgress = withApiProgress(UserSignupPage, '/api/1.0/users');
 
-const UserSignupPageWithApiProgress = withApiProgress(UserSignupPageWithTranslation);
+const UserSignupPageWithTranslation = withTranslation()( UserSignupPageWithApiProgress);
+
 export default UserSignupPageWithTranslation; 

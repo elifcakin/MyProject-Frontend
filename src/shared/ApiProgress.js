@@ -1,18 +1,25 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
-export function withApiProgress(WrappedComponent) {
+function getDisplayName(WrappedComponent) {
+    return WrappedComponent.displayName || WrappedComponent.name || 'Component' ;
+}
+
+export function withApiProgress(WrappedComponent, apiPath ) {
     return class extends Component {
+
+        static displayName = `ApiProgress(${getDisplayName(WrappedComponent)})`;
+        // static displayName = 'ApiProgress('+getDisplayName(WrappedComponent)+')';
+
         state = {
             pendingApiCall: false
         };
         componentDidMount() {
-            axios.interceptors.request.use((request) =>  {
-            
+            this.requestInterceptor = axios.interceptors.request.use((request) =>  {
                 this.updateApiCallFor(request.url, true)
                 return request;
             });
-            axios.interceptors.response.use( 
+            this.responseInterceptor = axios.interceptors.response.use( 
                 response => {
                 
                     this.updateApiCallFor(response.config.url, false);
@@ -26,16 +33,20 @@ export function withApiProgress(WrappedComponent) {
             );
         }
 
+        componentWillUnmount() {
+            axios.interceptors.request.eject(this.requestInterceptor);
+            axios.interceptors.response.eject(this.responseInterceptor);
+        }
+
         updateApiCallFor = (url, inProgress) => {
-            if (url === this.props.path) {
+            if (url === apiPath) {
                 this.setState({ pendingApiCall: inProgress});
             }
         }
 
         render() {
             const { pendingApiCall } = this.state;
-           // return (<div>{React.cloneElement(this.props.children, { pendingApiCall} ) } </div> );
-           return <WrappedComponent pendingApiCall= {pendingApiCall} />
+           return <WrappedComponent pendingApiCall= {pendingApiCall} { ...this.props} />;
         }
     };
 }
