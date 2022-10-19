@@ -4,9 +4,12 @@ import {withTranslation} from 'react-i18next';
 import { login } from '../api/apiCalls';
 import ButtonWithProgress from '../components/ButtonWithProgress';
 import { withApiProgress } from '../shared/ApiProgress';
-
+// import { Authentication } from '../shared/AuthenticationContext';
+import { connect } from 'react-redux';
+import { loginSuccess } from '../redux/authActions';
 class LoginPage extends Component {
-
+ 
+    // static contextType = Authentication;
     state = {
         username: null,
         password: null,
@@ -21,7 +24,6 @@ class LoginPage extends Component {
             error: null
         });
         this.state.password=event.target.value;
-
     };
 
     onChangeName= event => {
@@ -36,7 +38,6 @@ class LoginPage extends Component {
     onClickLogin = async event => {
         event.preventDefault();
         const { username, password } = this.state;
-        const { onLoginSuccess } = this.props ;
         const creds = {
             username,
             password
@@ -49,9 +50,15 @@ class LoginPage extends Component {
         })
         try {
 
-            await login(creds) 
+            const response  = await login(creds) 
             push('/');
-            onLoginSuccess(username);
+
+            const authState = {
+                ...response.data,
+                password
+            };
+
+            this.props.onLoginSuccess(authState)
         }   catch (apiError) {
             this.setState({
                 error: apiError.response.data.message
@@ -73,7 +80,7 @@ class LoginPage extends Component {
                     <Input name = "Username"  label={t("Username")} onChange={this.onChangeName}/>
                     <Input name = "Password"  label={t("Password")} onChange={this.onChangePassword} type= "password" />
                     {error && <div className="alert alert-danger" >{error}</div>}
-                <div className="text-center">
+                <div className="text-center" style={{margin:"10px"}}>
                     <ButtonWithProgress onClick={this.onClickLogin} disabled={!buttonEnabled || pendingApiCall} pendingApiCall={pendingApiCall}   text = {t('Login')}/>
                 </div>
               </form>
@@ -84,4 +91,12 @@ class LoginPage extends Component {
 
 const LoginPageWithTranslation = withTranslation()(LoginPage);
 
-export default withApiProgress(LoginPageWithTranslation, '/api/1.0/auth');
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onLoginSuccess:(authState) => dispatch(loginSuccess(authState))
+        
+    }
+}
+
+
+export default connect(null, mapDispatchToProps)(withApiProgress(LoginPageWithTranslation, '/api/1.0/auth'));

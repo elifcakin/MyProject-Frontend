@@ -86,8 +86,8 @@ class UserSignupPage extends React.Component{
                 <Input name = "displayName" label={t("Display Name")} error={displayName} onChange={this.onChange} />
                 <Input name = "passsword" label={t("Password")} error={password} onChange={this.onChange} type= "password" />
                 <Input name = "passwordRepeat" label={t("Password Repeat")} error={passwordRepeat} onChange={this.onChange} type= "password" />
-               <div className="text-center">
-                 <ButtonWithProgress
+                <div className="text-center " style={{margin:"10px"}}>
+                 <ButtonWithProgress 
                   onClick= {this.onClickSignup} 
                   disabled={pendingApiCall || passwordRepeat !== undefined} 
                   pendingApiCall={pendingApiCall} 
