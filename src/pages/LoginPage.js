@@ -1,102 +1,111 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import Input from '../components/Input';
-import {withTranslation} from 'react-i18next';
-import { login } from '../api/apiCalls';
+import {useTranslation} from 'react-i18next';
 import ButtonWithProgress from '../components/ButtonWithProgress';
-import { withApiProgress } from '../shared/ApiProgress';
-// import { Authentication } from '../shared/AuthenticationContext';
-import { connect } from 'react-redux';
-import { loginSuccess } from '../redux/authActions';
-class LoginPage extends Component {
- 
-    // static contextType = Authentication;
-    state = {
-        username: null,
-        password: null,
-        error: null,
-       
-    };
+import { useApiProgress } from '../shared/ApiProgress';
 
-    onChangePassword = event => {
-        const {name, value} = event.target.value;
-        this.setState({
-            [name]: value,
-            error: null
-        });
-        this.state.password=event.target.value;
-    };
+import { useDispatch } from 'react-redux';
+import { loginHandler} from '../redux/authActions';
 
-    onChangeName= event => {
-        const {name, value} = event.target.value;
-        this.setState({
-            [name]: value,
-            error: null
-        });
-        this.state.username=event.target.value;
-    };
+const LoginPage = (props) => {
+  
 
-    onClickLogin = async event => {
+    const [username, setUsername] = useState();
+    const [password, setPassword] = useState();
+    const [error, setError ] = useState();
+    
+    const  dispatch  = useDispatch();
+
+    useEffect(() => {
+        setError(undefined)
+    }, [username,password])
+    
+    
+    
+    // state = {
+    //     username: null,
+    //     password: null,
+    //     error: null,
+
+    // };
+
+    // const onChangePassword = event => {
+        // const {name, value} = event.target.value;
+        // this.setState({
+        //     [name]: value,
+        //     error: null
+        // });
+        // this.state.password=event.target.value; //silme
+    // };
+
+    // const onChangeName= event => {
+    //     const {name, value} = event.target.value;
+        // this.setState({
+        //     [name]: value,
+        //     error: null
+        // });
+        // this.state.username=event.target.value; //silme
+    // };
+
+    const onChange = event => {
+        const { name, value} = event.target;
+        if ( name === 'username') {
+            setUsername(value)
+        } else {
+            setPassword(value)
+        }
+
+    }
+
+    const onClickLogin = async event => {
         event.preventDefault();
-        const { username, password } = this.state;
+        // const { username, password } = this.state;
         const creds = {
             username,
             password
         };
 
-        const { push } = this.props.history;
-    
-        this.setState({
-            error: null
-        })
+        
+        const { history } = props;
+        const { push } = history;
+
+        // this.setState({
+        //     error: null
+        // })
+        setError(undefined);
         try {
-
-            const response  = await login(creds) 
+            await dispatch(loginHandler(creds))
             push('/');
-
-            const authState = {
-                ...response.data,
-                password
-            };
-
-            this.props.onLoginSuccess(authState)
         }   catch (apiError) {
-            this.setState({
-                error: apiError.response.data.message
-            })
-        }
-
+            setError(apiError.response.data.message);
+            // this.setState({
+            //   error: apiError.response.data.message
+            // })
+            }
     };
- 
-    render() {
-        const { t, pendingApiCall } = this.props;
-        const { username, password, error } = this.state;
+
+        const { t } = useTranslation();
+        const pendingApiCall  = useApiProgress('/api/1.0/auth');
+        
+
         const buttonEnabled = username && password;
-    
+
         return (
-            
-               <div className = "container"> 
-                <form> 
-                    <h1 className="text-center">{t('Login')}</h1> 
-                    <Input name = "Username"  label={t("Username")} onChange={this.onChangeName}/>
-                    <Input name = "Password"  label={t("Password")} onChange={this.onChangePassword} type= "password" />
+               <div className = "container">
+                <form>
+                    <h1 className="text-center">{t('Login')}</h1>
+                    <Input  label={t("Username")}  onChange={event => setUsername(event.target.value)} />
+                    <Input  label={t("Password")}   type= "password" onChange={event => setPassword(event.target.value) }/>
                     {error && <div className="alert alert-danger" >{error}</div>}
                 <div className="text-center" style={{margin:"10px"}}>
-                    <ButtonWithProgress onClick={this.onClickLogin} disabled={!buttonEnabled || pendingApiCall} pendingApiCall={pendingApiCall}   text = {t('Login')}/>
+                    <ButtonWithProgress onClick={onClickLogin} disabled={!buttonEnabled || pendingApiCall} pendingApiCall={pendingApiCall}   text = {t('Login')}/>
                 </div>
               </form>
             </div>
         );
-    }
-}
 
-const LoginPageWithTranslation = withTranslation()(LoginPage);
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        onLoginSuccess:(authState) => dispatch(loginSuccess(authState))
-        
-    }
 }
 
 
-export default connect(null, mapDispatchToProps)(withApiProgress(LoginPageWithTranslation, '/api/1.0/auth'));
+
+export default LoginPage;

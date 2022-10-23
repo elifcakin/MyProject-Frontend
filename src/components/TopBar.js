@@ -1,17 +1,27 @@
-import React, { Component } from 'react';
+import React from 'react';
 import logo from '../assets/channels4_profile.jpg';
 import { Link } from 'react-router-dom';
-import { withTranslation} from 'react-i18next';
-// import { Authentication} from '../shared/AuthenticationContext';
-import { connect } from 'react-redux';
+import { useTranslation} from 'react-i18next';
+import { useDispatch , useSelector } from 'react-redux';
 import { logoutSuccess } from '../redux/authActions';
 
-class TopBar extends Component {
+const TopBar  = props => {
     
-    // static contextType = Authentication;
+        const { t } = useTranslation();
 
-    render() {
-        const { t, username, isLoggedIn, onLogoutSuccess } = this.props;
+        const {username , isLoggedIn}= useSelector((store) => ({
+           
+                isLoggedIn: store.isLoggedIn,
+                username: store.username
+            
+        }));
+
+        const dispatch = useDispatch();
+      
+        const onLogoutSuccess = () => {
+            dispatch(logoutSuccess());
+        }
+   
         let links = (   
             <ul className="navbar-nav ms-auto ">
                 <li>   
@@ -49,22 +59,8 @@ class TopBar extends Component {
                 </nav>  
             </div>
         );
-    }
-}
-const TopBarWithTranslation = withTranslation()(TopBar)
-
-const mapStateToProps = (store) => {
-    return {
-        isLoggedIn: store.isLoggedIn,
-        username: store.username
-    }
+    
 }
 
-const mapDispatchToProps = dispatch => {
-    return {
-        onLogoutSuccess: () => dispatch(logoutSuccess())
-    };    
-};
 
-
-export default connect(mapStateToProps, mapDispatchToProps)(TopBarWithTranslation);
+export default TopBar;

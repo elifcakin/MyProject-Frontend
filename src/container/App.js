@@ -7,17 +7,15 @@ import UserPage from "../pages/UserPage";
 import { HashRouter as Router, Route, Redirect , Switch} from 'react-router-dom';
 import { signup } from "../api/apiCalls";
 import TopBar from "../components/TopBar";
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
+
+const App = () => {
+
+  const { isLoggedIn } = useSelector(( store) => ({
+    isLoggedIn:store.isLoggedIn
+  }));
 
 
-
-// import { Authentication} from '../shared/AuthenticationContext';
-
-class App extends React.Component {
-  // static contextType = Authentication;
-
-  render() {
-    const {isLoggedIn} = this.props;
       return (
         <div >
           <Router>
@@ -34,13 +32,8 @@ class App extends React.Component {
           <LanguageSelector/> 
         </div>
       );
-    }
-}
+  
+}  
 
-const mapStateToProps = (store) => {
-  return {
-      isLoggedIn: store.isLoggedIn,
-  }
-}
 
-export default connect(mapStateToProps)(App);
+export default App;

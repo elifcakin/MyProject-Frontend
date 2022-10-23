@@ -5,6 +5,8 @@ import Input  from '../components/Input';
 import {withTranslation} from 'react-i18next';
 import ButtonWithProgress from '../components/ButtonWithProgress';
 import { withApiProgress } from '../shared/ApiProgress';
+import { connect } from 'react-redux';
+import { signupHandler } from '../redux/authActions';
 
 class UserSignupPage extends React.Component{
 
@@ -13,7 +15,6 @@ class UserSignupPage extends React.Component{
         displayName: null,
         password: null,
         passwordRepeat: null,
-        
         errors: {}
     };
 
@@ -39,10 +40,28 @@ class UserSignupPage extends React.Component{
             errors 
         });
     };
+
+    onChangeUserName = event => {
+      this.state.username=event.target.value
+    };
+    onChangePassword = event => {
+      this.state.password=event.target.value
+    };
+    onChangePasswordRepeat = event => {
+      this.state.passwordRepeat=event.target.value
+    };
+
+    onChangeDisplayName = event => {
+      this.state.displayName=event.target.value
+    };
+
     onClickSignup = async  event => {
+      
 
         event.preventDefault();
 
+        const { history, dispatch } = this.props;
+        const { push } = history;
         const { username, displayName, password} = this.state;
 
        
@@ -52,23 +71,18 @@ class UserSignupPage extends React.Component{
             password
         };
        
+        console.log('body')
+        console.log(body)
       
         try {
-           const response = await signup(body);
-    
-        }  catch  (error) {
-           if (error.response.data.validationErrors) {
-            console.log(error)
-            this.state.errors=error.response.data.validationErrors;
-           this.setState({error: error.response.data.validationErrors});
-      
-           }
-           
-          
-        }
-
-
-        
+          await dispatch(signupHandler(body));
+          push('/');
+        } catch  (error) {
+            if (error.response.data.validationErrors) {
+             this.setState({error: error.response.data.validationErrors});
+            }
+          }
+ 
     };
 
 ;
@@ -82,10 +96,10 @@ class UserSignupPage extends React.Component{
             <div className = "container "> 
               <form>
                 <h1 className="text-center " >{t('Sign Up')}</h1> 
-                <Input name = "username " label={t("Username")} error={username} onChange={this.onChange} />
-                <Input name = "displayName" label={t("Display Name")} error={displayName} onChange={this.onChange} />
-                <Input name = "passsword" label={t("Password")} error={password} onChange={this.onChange} type= "password" />
-                <Input name = "passwordRepeat" label={t("Password Repeat")} error={passwordRepeat} onChange={this.onChange} type= "password" />
+                <Input name = "username " label={t("Username")} error={username} onChange={this.onChangeUserName} />
+                <Input name = "displayName" label={t("Display Name")} error={displayName} onChange={this.onChangeDisplayName} />
+                <Input name = "passsword" label={t("Password")} error={password} onChange={this.onChangePassword} type= "password" />
+                <Input name = "passwordRepeat" label={t("Password Repeat")} error={passwordRepeat} onChange={this.onChangePasswordRepeat} type= "password" />
                 <div className="text-center " style={{margin:"10px"}}>
                  <ButtonWithProgress 
                   onClick= {this.onClickSignup} 
@@ -100,8 +114,8 @@ class UserSignupPage extends React.Component{
     }
 }
 
-const UserSignupPageWithApiProgress = withApiProgress(UserSignupPage, '/api/1.0/users');
+const UserSignupPageWithApiProgressForSiqnupRequest = withApiProgress(UserSignupPage, '/api/1.0/users');
+const UserSignupPageWithApiProgressForAuthRequest = withApiProgress(UserSignupPageWithApiProgressForSiqnupRequest, '/api/1.0/auth')
+const UserSignupPageWithTranslation = withTranslation()(UserSignupPageWithApiProgressForAuthRequest);
 
-const UserSignupPageWithTranslation = withTranslation()( UserSignupPageWithApiProgress);
-
-export default UserSignupPageWithTranslation; 
+export default connect()(UserSignupPageWithTranslation); 
