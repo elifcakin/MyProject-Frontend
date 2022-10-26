@@ -1,65 +1,79 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getUsers } from '../api/apiCalls';
-import { withTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import UserListItem from './UserListItem';
+import { useApiProgress } from '../shared/ApiProgress';
+import Spinner from './Spinner';
 
-class UserList extends Component {
-  state = {
-    page: {
-      content: [],
-      size: 3,
-      number: 0
+const UserList = () => {
+  const [page, setPage] = useState({
+    content: [],
+    size: 3,
+    number: 0
+  });
+
+  const [loadFailure, setLoadFailure] = useState(false);
+
+  const pendingApiCall = useApiProgress('get', '/api/1.0/users?page');
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const onClickNext = () => {
+    const nextPage = page.number + 1;
+    loadUsers(nextPage);
+  };
+
+  const onClickPrevious = () => {
+    const previousPage = page.number - 1;
+    loadUsers(previousPage);
+  };
+
+  const loadUsers = async page => {
+    setLoadFailure(false);
+    try {
+      const response = await getUsers(page);
+      setPage(response.data);
+    } catch (error) {
+      setLoadFailure(true);
     }
   };
 
-  componentDidMount() {
-    this.loadUsers();
+  const { t } = useTranslation();
+  const { content: users, last, first } = page;
+
+  let actionDiv = (
+    <div>
+      {first === false && (
+        <button className="btn btn-sm btn-light" onClick={onClickPrevious}>
+          {t('Previous')}
+        </button>
+      )}
+      {last === false && (
+        <button className="btn btn-sm btn-light float-right " style={{float:'right'}} onClick={onClickNext}>
+          {t('Next')}
+        </button>
+      )}
+    </div>
+  );
+
+  if (pendingApiCall) {
+    actionDiv = <Spinner />;
   }
 
-  onClickNext = () => {
-    const nextPage = this.state.page.number + 1;
-    this.loadUsers(nextPage);
-  };
-
-  onClickPrevious = () => {
-    const previousPage = this.state.page.number - 1;
-    this.loadUsers(previousPage);
-  };
-
-  loadUsers = page => {
-    getUsers(page).then(response => {
-      this.setState({
-        page: response.data
-      });
-    });
-  };
-
-  render() {
-    const { t } = this.props;
-    const { content: users, last, first } = this.state.page;
-    return (
-      <div className="card">
-        <h3 className="card-header text-center">{t('Users')}</h3>
-        <div className="list-group-flush">
-          {users.map(user => (
-            <UserListItem key={user.username} user={user} />
-          ))}
-        </div>
-        <div>
-          {first === false && (
-            <button className="btn btn-sm btn-light" onClick={this.onClickPrevious}>
-              {t('Previous')}
-            </button>
-          )}
-          {last === false && (
-            <button className="btn btn-sm btn-light float-right" onClick={this.onClickNext}>
-              {t('Next')}
-            </button>
-          )}
-        </div>
+  return (
+    <div className="card">
+      <h3 className="card-header text-center">{t('Users')}</h3>
+      <div className="list-group">
+        {users.map(user => (
+          <UserListItem key={user.username} user={user} />
+        ))}
       </div>
-    );
-  }
-}
+      {actionDiv}
+      {loadFailure && <div className="text-center text-danger">{t('Load Failure')}</div>}
+    </div>
+  );
+};
 
-export default withTranslation()(UserList);
+export default UserList;
