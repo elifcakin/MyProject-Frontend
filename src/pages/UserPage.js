@@ -7,6 +7,7 @@ import { useApiProgress } from '../shared/ApiProgress';
 import Spinner from '../components/Spinner';
 import HoaxFeed from '../components/HoaxFeed';
 
+
 const UserPage = () => {
   const [user, setUser] = useState({});
   const [notFound, setNotFound] = useState(false);
