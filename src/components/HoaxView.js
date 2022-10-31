@@ -2,16 +2,15 @@ import React, { useState } from 'react';
 import ProfileImageWithDefault from './ProfileImageWithDefault';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
-import Modal from './Modal';
-import { useApiProgress } from '../shared/ApiProgress';
+
+
 
 const HoaxView = props => {
   const loggedInUser = useSelector(store => store.username);
   const { hoax } = props;
   const { user, content,  fileAttachment } = hoax;
   const { username, displayName, image } = user;
-  const [modalVisible, setModalVisible] = useState(false);
+
 
   
 
